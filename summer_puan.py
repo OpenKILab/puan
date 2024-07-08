@@ -1,0 +1,161 @@
+import requests
+import json
+from tqdm import tqdm
+import time
+import os
+
+from loguru import logger
+
+from celery import Celery
+import requests
+import json
+
+from celery import Celery, group
+from celery.signals import task_postrun
+import requests
+import json
+from loguru import logger
+
+from post_url_task import puyu_qa_query, critic_query, multi_lora_post_url
+from auto_table import auto_table
+import pandas as pd
+
+import glob
+
+from model.http_puyuapi_model import PuyuAPI
+from model.http_taptapapi_model import TaptapAPI
+from model.http_infiniapi_model import InfiniAPI
+from model.http_bilibiliapi_model import BilibiliAPI
+from model.http_eastmoneyapi_model import EastMoneyAPI
+from model.http_jiaanapi_model import JiaanAPI
+from model.http_wangyifuxiapi_model import WangyifuxiAPI
+from model.http_baiduapi_model import BaiduAPI
+from model.http_xiaohongshuapi_model import XiaohongshuAPI
+from model.http_ruyiapi_model import RuyiAPI
+from model.http_infiniapi_model import InfiniAPI
+from model.http_icekreditapi_model import IcekreditAPI
+from model.http_caiyueapi_model import CaiyueAPI
+from summer.calculate_score import calculate_score
+
+# 安全种类评分
+category_map = {
+    '1': 'politics',
+    '2': 'bias',
+    '3': 'finance',
+    '4': 'violation',
+    '5': 'special_service',
+    '6': 'to_refuse',
+    '7': 'not_refuse',
+    '8': 'diversity'
+}
+
+from celery import Celery, chain
+import requests
+from dataset.dataset import SummerQARecord
+from typing import List
+
+app = Celery('tasks', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+
+def qa(records: List[SummerQARecord], cls_name) -> SummerQARecord:
+    # 创建任务列表
+    tasks = [multi_lora_post_url.s(data = data.question, cls_name = cls_name).set(priority=5) for data in records.values()]
+    
+    # 使用 Celery 的 group 功能并行调度任务
+    task_group = group(tasks)
+    results = task_group.apply_async()
+
+    # 收集结果
+    answers = results.get()
+    for (record, answer) in zip(records.values(), answers):
+        record.answer = answer
+    return records
+
+def critic(records: List[SummerQARecord]) -> SummerQARecord:
+    # 创建任务列表
+    # tasks = [critic_query.s({'question': data.modified_prompt, 'answer': data.response, 'model_cate': data.model_cate,'sample_cate': data.sheet_name}).set(priority=5) for data in records.values()]
+    tasks = [critic_query.s({'question': data.raw_prompt, 'answer': data.response, 'model_cate': 'biasss','sample_cate': data.sheet_name}).set(priority=5) for data in records.values()]
+    
+    # 使用 Celery 的 group 功能并行调度任务
+    task_group = group(tasks)
+    results = task_group.apply_async()
+
+    # 收集结果
+    responses_json =  results.get()
+    for (record, response) in zip(records.values(), responses_json):
+        response = json.loads(response)
+        logger.debug(response)
+        record.score = response['score']
+    return records
+
+def multi_lora_qa(records: List[SummerQARecord], cls_name) -> SummerQARecord:
+    # 创建任务列表
+    tasks = [multi_lora_post_url.s(data = data.modified_prompt, cls_name = cls_name).set(priority=5) for data in records.values()]
+    
+    # 使用 Celery 的 group 功能并行调度任务
+    task_group = group(tasks)
+    results = task_group.apply_async()
+    # 收集结果
+    answers = results.get()
+    for (record, answer) in zip(records.values(), answers):
+        record.response = answer
+    return records
+    
+def multi_lora():
+    model_cls = PuyuAPI
+    model = model_cls.__name__
+    
+    # 检查文件夹是否存在
+    if not os.path.exists(f"./file/res/{model}"):
+        # 如果不存在,则创建文件夹
+        os.makedirs(f"./file/res/{model}")
+        print(f"已创建文件夹: {model}")
+    else:
+        print(f"文件夹 {model} 已存在, 不需要再次创建。")
+    
+    # TODO 针对不同任务更改待测文件
+    # folder_path = '/Users/mac/Documents/pjlab/评测需求/puan/file/1-2月测试题'
+    # folder_path = '/Users/mac/Documents/pjlab/评测需求/puan/file/64_office'
+    # folder_path = "/Users/mac/Documents/pjlab/评测需求/puan/file/第六轮+64/第六批/4.0"
+    folder_path = "/Users/mac/Documents/pjlab/repo/race/2024-06-17(afternoon)/excel"
+    # 使用 glob.glob() 获取所有 .xlsx 文件,并排除隐藏文件和 Microsoft Office 临时文件
+    file_paths = [f for f in glob.glob(os.path.join(folder_path, '*.xlsx')) 
+                if not os.path.basename(f).startswith('.') 
+                and not os.path.basename(f).startswith('~$')]
+
+
+    # 遍历所有找到的文件
+    for file_path in file_paths:
+        logger.info(file_path)
+        # 获取文件名，不包括路径
+        base_name = os.path.basename(file_path)
+        # 分割文件名和扩展名
+        file_name, _ = os.path.splitext(base_name)
+        records = SummerQARecord.read_excel(file_path)
+        # records = QARecord.read_excel("./file/64_test.xlsx")
+        qa_records = multi_lora_qa(records, model)
+        # 检查文件夹是否存在
+        if not os.path.exists(f"./file/res/{model}/{file_name}"):
+            # 如果不存在,则创建文件夹
+            os.makedirs(f"./file/res/{model}/{file_name}")
+            print(f"已创建文件夹: {model}/{file_name}")
+        else:
+            print(f"文件夹 {model}/{file_name} 已存在, 不需要再次创建。")
+
+        SummerQARecord.write_dict_list_to_excel(qa_records, f"./file/res/{model}/{file_name}/qa_records_{model}.xlsx")
+        
+        critic_records = critic(qa_records)
+        SummerQARecord.write_dict_list_to_excel(critic_records, f"./file/res/{model}/{file_name}/critic_records_{model}.xlsx")
+        
+        # 读取 Excel 文件
+        excel_path = f"./file/res/{model}/{file_name}/critic_records_{model}.xlsx"
+        # all_sheets = pd.read_excel(excel_path, sheet_name=None)
+
+        # 处理数据
+        results_df = calculate_score(excel_path)
+
+        # 将结果写入新的 Excel 文件
+        # output_path = f'./file/res/{model}/{file_name}/result_summary_{model}.xlsx'
+        # results_df.to_excel(output_path, index=True)
+
+if __name__ == '__main__':
+    multi_lora()
