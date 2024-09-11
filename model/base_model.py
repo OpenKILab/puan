@@ -74,7 +74,8 @@ class HTTPAPILLMModel(BaseLLMModel):
         self.url = None
         self.headers = None
         # 指数增长 retry
-        retry_options = ExponentialRetry(attempts = 2 ** 2, start_timeout = 1.0)
+        # retry_options = ExponentialRetry(attempts = 2 ** 2, start_timeout = 1.0)
+        retry_options = ExponentialRetry(attempts = 0, start_timeout = 300.0)
         
         # 不同平台 不同 QPS
         self._qps = 4

@@ -162,10 +162,10 @@ def multi_lora_post_url(self, data: str, cls_name):
         try:
             logger.info(cls_name)
             response = model.generate(prompt=data)
-            data = response
+            # data = response
             # response.raise_for_status()
             # data = model.parse(response)[-1]
-            # data = model.parse(response)
+            (_, data) = model.parse(response)
             logger.info(f"response content: {data}")
         except BaseException as e:
             retry_delay = min(2 ** self.request.retries, 60)    # 指数退避，最大60秒
