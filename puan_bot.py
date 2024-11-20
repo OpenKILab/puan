@@ -54,6 +54,17 @@ from model.http_yoocarapi_model import YoocarAPI
 from model.http_paradigmapi_model import ParadigmAPI
 from model.http_ailinapi_model import AilinAPI
 from model.http_zhuofanapi_model import ZhuofanAPI
+from model.http_yunbenapi_model import YunbenAPI
+from model.http_qisimiaoxiangapi_model import QisimiaoxiangAPI
+from model.http_civilgptapi_model import CivilGPTAPI
+from model.http_xingzhiapi_model import XingzhiAPI
+from model.http_xingzhiimageapi_model import XingzhiimageAPI
+from model.http_chemistryapi_model import ChemistryAPI
+from model.http_kingnetaiapi_model import KingnetaiAPI
+from model.http_rwkvapi_model import RwkvAPI
+from model.http_dazhuanjiaapi_model import DazhuanjiaAPI
+from model.http_mobvoiapi_model import MobvoiAPI
+from model.http_mobvoivoiceapi_model import MobvoivoiceAPI
 
 # 安全种类评分
 category_map = {
@@ -136,7 +147,7 @@ def multi_lora_qa(records: List[QARecord], cls_name) -> QARecord:
     return records
     
 def multi_lora():
-    model_cls = ZhuofanAPI
+    model_cls = MobvoivoiceAPI
     model = model_cls.__name__
 
     # 检查文件夹是否存在
@@ -148,12 +159,7 @@ def multi_lora():
         print(f"文件夹 {model} 已存在, 不需要再次创建。")
     
     # TODO 针对不同任务更改待测文件
-    # folder_path = '/Users/mac/Documents/pjlab/评测需求/puan/file/1-2月测试题'
-    # folder_path = '/Users/mac/Documents/pjlab/评测需求/puan/file/64_office'
-    # folder_path = "/Users/mac/Documents/pjlab/评测需求/puan/file/第六轮+64/第六批/4.0"
-    # folder_path = "/Users/mac/Documents/pjlab/评测需求/puan/file/第六轮+64/第六批专项"
-    folder_path = "/Users/mac/Documents/pjlab/评测题目/第八批/文生文4.1"
-    # folder_path = "/Users/mac/Documents/pjlab/评测题目/7.8_4.0"
+    folder_path = "/Users/mac/Documents/pjlab/评测题目/第十批/文生文4.2"
     # 使用 glob.glob() 获取所有 .xlsx 文件,并排除隐藏文件和 Microsoft Office 临时文件
     file_paths = [f for f in glob.glob(os.path.join(folder_path, '*.xlsx')) 
                 if not os.path.basename(f).startswith('.') 
@@ -177,7 +183,8 @@ def multi_lora():
             print(f"文件夹 {model}/{file_name} 已存在, 不需要再次创建。")
 
         QARecord.write_dict_list_to_excel(qa_records, f"./file/res/{model}/{file_name}/qa_records_{model}.xlsx")
-        
+
+        '''
         critic_records = critic(qa_records)
         QARecord.write_dict_list_to_excel(critic_records, f"./file/res/{model}/{file_name}/critic_records_{model}.xlsx")
         
@@ -191,6 +198,8 @@ def multi_lora():
         # 将结果写入新的 Excel 文件
         output_path = f'./file/res/{model}/{file_name}/result_summary_{model}.xlsx'
         results_df.to_excel(output_path, index=True)
+        '''
+
 
 if __name__ == '__main__':
     multi_lora()

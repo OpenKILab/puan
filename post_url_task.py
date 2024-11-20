@@ -87,7 +87,7 @@ def puyu_qa_query(self, data: str):
         
     return data
 
-@app.task(bind=True, max_retries=5, rate_limit='2/s')
+@app.task(bind=True, max_retries=3, rate_limit='3/s')
 def critic_query(self, data):
     # 检查是否允许执行任务
     priority = self.request.delivery_info.get('priority', 'not set')
@@ -148,7 +148,7 @@ def gpt4_critic_post_url(self, data):
     return result
     
 
-@app.task(bind=True, max_retries=3, rate_limit='2/s')
+@app.task(bind=True, max_retries=3, rate_limit='1/s')
 def multi_lora_post_url(self, data: str, cls_name):
     try:
         model = create_instance_from_string(cls_name)
