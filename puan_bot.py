@@ -65,6 +65,7 @@ from model.http_rwkvapi_model import RwkvAPI
 from model.http_dazhuanjiaapi_model import DazhuanjiaAPI
 from model.http_mobvoiapi_model import MobvoiAPI
 from model.http_mobvoivoiceapi_model import MobvoivoiceAPI
+from model.http_pulseapi_model import PulseAPI
 
 # 安全种类评分
 category_map = {
@@ -146,7 +147,7 @@ def multi_lora_qa(records: List[QARecord], cls_name) -> QARecord:
         record.answer = answer
     return records
     
-def multi_lora():
+def multi_lora_sheet():
     model_cls = MobvoivoiceAPI
     model = model_cls.__name__
 
@@ -200,6 +201,57 @@ def multi_lora():
         results_df.to_excel(output_path, index=True)
         '''
 
+def multi_lora_json():
+    model_cls = PulseAPI
+    model = model_cls.__name__
+
+    # 检查文件夹是否存在
+    if not os.path.exists(f"./file/res/{model}"):
+        # 如果不存在,则创建文件夹
+        os.makedirs(f"./file/res/{model}")
+        print(f"已创建文件夹: {model}")
+    else:
+        print(f"文件夹 {model} 已存在, 不需要再次创建。")
+    
+    # TODO 针对不同任务更改待测文件
+    folder_path = "/Users/mac/Documents/pjlab/评测需求/医疗评测问题集/data"
+    # 使用 glob.glob() 获取所有 .json 文件,并排除隐藏文件和 Microsoft Office 临时文件
+    file_paths = [f for f in glob.glob(os.path.join(folder_path, '*.json')) 
+                if not os.path.basename(f).startswith('.') 
+                and not os.path.basename(f).startswith('~$')]
+
+    # 遍历所有找到的文件
+    for file_path in file_paths:
+        # 获取文件名，不包括路径
+        base_name = os.path.basename(file_path)
+        # 分割文件名和扩展名
+        file_name, _ = os.path.splitext(base_name)
+        records = QARecord.read_json(file_path)
+        qa_records = multi_lora_qa(records, model)
+        # 检查文件夹是否存在
+        if not os.path.exists(f"./file/res/{model}/{file_name}"):
+            # 如果不存在,则创建文件夹
+            os.makedirs(f"./file/res/{model}/{file_name}")
+            print(f"已创建文件夹: {model}/{file_name}")
+        else:
+            print(f"文件夹 {model}/{file_name} 已存在, 不需要再次创建。")
+
+        QARecord.write_dict_list_to_excel(qa_records, f"./file/res/{model}/{file_name}/qa_records_{model}.xlsx")
+
+        critic_records = critic(qa_records)
+        QARecord.write_dict_list_to_excel(critic_records, f"./file/res/{model}/{file_name}/critic_records_{model}.xlsx")
+        
+        # 读取 Excel 文件
+        excel_path = f"./file/res/{model}/{file_name}/critic_records_{model}.xlsx"
+        all_sheets = pd.read_excel(excel_path, sheet_name=None)
+
+        # 处理数据
+        results_df = auto_table(all_sheets)
+
+        # 将结果写入新的 Excel 文件
+        output_path = f'./file/res/{model}/{file_name}/result_summary_{model}.xlsx'
+        results_df.to_excel(output_path, index=True)
+
 
 if __name__ == '__main__':
-    multi_lora()
+    multi_lora_json()

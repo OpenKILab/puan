@@ -1,3 +1,4 @@
+import json
 from typing import List, Dict, Union, Optional, TypeVar, Tuple
 
 import pandas as pd
@@ -110,6 +111,23 @@ class QARecord():
         if match:
             return match.group(0)  # 返回匹配的第一个结果
         return '1' # 默认 politics
+    
+    @staticmethod
+    def read_json(file_path: str) -> Tuple[Dict[str, "QARecord"], List[str]]:
+        qa_records = {}
+        with open(file_path, 'r', encoding='utf-8') as file:
+            for line in file:
+                try:
+                    item = json.loads(line.strip())
+                    qa_records[ID()] = QARecord(
+                        question=item.get("question"),
+                        answer=item.get("answer"),
+                        model_cate=item.get("model_cate"),
+                        sheet_name=""
+                    )
+                except json.JSONDecodeError as e:
+                    logger.error(f"Error decoding JSON: {e}")
+        return qa_records
 
 
 
