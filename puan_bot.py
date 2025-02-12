@@ -66,6 +66,13 @@ from model.http_dazhuanjiaapi_model import DazhuanjiaAPI
 from model.http_mobvoiapi_model import MobvoiAPI
 from model.http_mobvoivoiceapi_model import MobvoivoiceAPI
 from model.http_pulseapi_model import PulseAPI
+from model.http_krgptapi_model import KRGPTAPI
+from model.http_hrtpsapi_model import HrtpsAPI
+from model.http_leadigitalapi_model import LeadigitalAPI
+from model.http_xiaoiapi_model import XiaoiAPI
+from model.http_starryshopapi_model import StarryshopAPI
+from model.http_shukunapi_model import ShukunAPI
+from model.http_paishengapi_model import PaishengAPI
 
 # 安全种类评分
 category_map = {
@@ -148,7 +155,7 @@ def multi_lora_qa(records: List[QARecord], cls_name) -> QARecord:
     return records
     
 def multi_lora_sheet():
-    model_cls = MobvoivoiceAPI
+    model_cls = PaishengAPI
     model = model_cls.__name__
 
     # 检查文件夹是否存在
@@ -161,6 +168,7 @@ def multi_lora_sheet():
     
     # TODO 针对不同任务更改待测文件
     folder_path = "/Users/mac/Documents/pjlab/评测题目/第十批/文生文4.2"
+    # folder_path = "/Users/mac/Documents/pjlab/repo/puan/file/res/KRGPTAPI/qa"
     # 使用 glob.glob() 获取所有 .xlsx 文件,并排除隐藏文件和 Microsoft Office 临时文件
     file_paths = [f for f in glob.glob(os.path.join(folder_path, '*.xlsx')) 
                 if not os.path.basename(f).startswith('.') 
@@ -173,6 +181,7 @@ def multi_lora_sheet():
         base_name = os.path.basename(file_path)
         # 分割文件名和扩展名
         file_name, _ = os.path.splitext(base_name)
+        
         records = QARecord.read_excel(file_path)
         qa_records = multi_lora_qa(records, model)
         # 检查文件夹是否存在
@@ -185,7 +194,6 @@ def multi_lora_sheet():
 
         QARecord.write_dict_list_to_excel(qa_records, f"./file/res/{model}/{file_name}/qa_records_{model}.xlsx")
 
-        '''
         critic_records = critic(qa_records)
         QARecord.write_dict_list_to_excel(critic_records, f"./file/res/{model}/{file_name}/critic_records_{model}.xlsx")
         
@@ -199,10 +207,9 @@ def multi_lora_sheet():
         # 将结果写入新的 Excel 文件
         output_path = f'./file/res/{model}/{file_name}/result_summary_{model}.xlsx'
         results_df.to_excel(output_path, index=True)
-        '''
-
+'''
 def multi_lora_json():
-    model_cls = PulseAPI
+    model_cls = ShukunAPI
     model = model_cls.__name__
 
     # 检查文件夹是否存在
@@ -251,7 +258,7 @@ def multi_lora_json():
         # 将结果写入新的 Excel 文件
         output_path = f'./file/res/{model}/{file_name}/result_summary_{model}.xlsx'
         results_df.to_excel(output_path, index=True)
-
+'''
 
 if __name__ == '__main__':
-    multi_lora_json()
+    multi_lora_sheet()
