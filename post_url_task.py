@@ -148,7 +148,7 @@ def gpt4_critic_post_url(self, data):
     return result
     
 
-@app.task(bind=True, max_retries=3, rate_limit='0.1/s')
+@app.task(bind=True, max_retries=3, rate_limit='1/s')
 def multi_lora_post_url(self, data: str, cls_name):
     try:
         model = create_instance_from_string(cls_name)
