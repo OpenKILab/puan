@@ -115,8 +115,7 @@ def multi_lora_sheet():
         print(f"文件夹 {model} 已存在, 不需要再次创建。")
     
     # TODO 针对不同任务更改待测文件
-    folder_path = "/Users/mac/Documents/pjlab/评测题目/第十批/文生文4.2"
-    # folder_path = "/Users/mac/Documents/pjlab/repo/puan/file/res/KRGPTAPI/qa"
+    folder_path = "/Users/mac/Documents/data"
     # 使用 glob.glob() 获取所有 .xlsx 文件,并排除隐藏文件和 Microsoft Office 临时文件
     file_paths = [f for f in glob.glob(os.path.join(folder_path, '*.xlsx')) 
                 if not os.path.basename(f).startswith('.') 
@@ -169,7 +168,7 @@ def multi_lora_json():
         print(f"文件夹 {model} 已存在, 不需要再次创建。")
     
     # TODO 针对不同任务更改待测文件
-    folder_path = "/Users/mac/Documents/pjlab/评测需求/医疗评测问题集/data"
+    folder_path = "/Users/mac/Documents/data"
     # 使用 glob.glob() 获取所有 .json 文件,并排除隐藏文件和 Microsoft Office 临时文件
     file_paths = [f for f in glob.glob(os.path.join(folder_path, '*.json')) 
                 if not os.path.basename(f).startswith('.') 
