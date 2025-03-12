@@ -22,58 +22,6 @@ import pandas as pd
 
 import glob
 
-from model.http_puyuapi_model import PuyuAPI
-from model.http_taptapapi_model import TaptapAPI
-from model.http_infiniapi_model import InfiniAPI
-from model.http_bilibiliapi_model import BilibiliAPI
-from model.http_eastmoneyapi_model import EastMoneyAPI
-from model.http_jiaanapi_model import JiaanAPI
-from model.http_wangyifuxiapi_model import WangyifuxiAPI
-from model.http_baiduapi_model import BaiduAPI
-from model.http_xiaohongshuapi_model import XiaohongshuAPI
-from model.http_ruyiapi_model import RuyiAPI
-from model.http_infiniapi_model import InfiniAPI
-from model.http_icekreditapi_model import IcekreditAPI
-from model.http_caiyueapi_model import CaiyueAPI
-from model.http_shuwenapi_model import ShuwenAPI
-from model.http_mihoyoapi_model import MihoyoAPI
-from model.http_langchaoapi_model import LangchaoAPI
-from model.http_zhumengdaoapi_model import ZhumengdaoAPI
-from model.http_hehetianjiapi_model import HehetianjiAPI
-from model.http_aishiapi_model import AishiAPI
-from model.http_fanweixiaoeapi_model import FanweixiaoeAPI
-from model.http_ximalayaapi_model import XimalayaAPI
-from model.http_hantaoapi_model import HantaoAPI
-from model.http_rockapi_model import RockAPI
-from model.http_ccsmecapi_model import CcsmecAPI
-from model.http_shaueapi_model import ShaueAPI
-from model.http_kezhiapi_model import KezhiAPI
-from model.http_guomaiapi_model import GuomaiAPI
-from model.http_miliapi_model import MiliAPI
-from model.http_yoocarapi_model import YoocarAPI
-from model.http_paradigmapi_model import ParadigmAPI
-from model.http_ailinapi_model import AilinAPI
-from model.http_zhuofanapi_model import ZhuofanAPI
-from model.http_yunbenapi_model import YunbenAPI
-from model.http_qisimiaoxiangapi_model import QisimiaoxiangAPI
-from model.http_civilgptapi_model import CivilGPTAPI
-from model.http_xingzhiapi_model import XingzhiAPI
-from model.http_xingzhiimageapi_model import XingzhiimageAPI
-from model.http_chemistryapi_model import ChemistryAPI
-from model.http_kingnetaiapi_model import KingnetaiAPI
-from model.http_rwkvapi_model import RwkvAPI
-from model.http_dazhuanjiaapi_model import DazhuanjiaAPI
-from model.http_mobvoiapi_model import MobvoiAPI
-from model.http_mobvoivoiceapi_model import MobvoivoiceAPI
-from model.http_pulseapi_model import PulseAPI
-from model.http_krgptapi_model import KRGPTAPI
-from model.http_hrtpsapi_model import HrtpsAPI
-from model.http_leadigitalapi_model import LeadigitalAPI
-from model.http_xiaoiapi_model import XiaoiAPI
-from model.http_starryshopapi_model import StarryshopAPI
-from model.http_shukunapi_model import ShukunAPI
-from model.http_paishengapi_model import PaishengAPI
-
 # 安全种类评分
 category_map = {
     '1': 'politics',
