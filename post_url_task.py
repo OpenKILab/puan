@@ -47,46 +47,6 @@ app.conf.task_default_queue = 'default'
 app.conf.task_default_exchange = 'tasks'
 app.conf.task_default_routing_key = 'task.default'
 
-@app.task(bind=True, max_retries=5, rate_limit='2/s')
-def puyu_qa_query(self, data: str):
-    # TODO: http error 才触发 retry
-    # 检查是否允许执行任务
-    priority = self.request.delivery_info.get('priority', 'not set')
-    if priority < 5:
-        redis_client.set("pause_tasks", "False")
-    if redis_client.get("pause_tasks") == b"True":
-        logger.info("pause_tasks")
-        # TODO: 当pause_tasks 时，应该不再处理 优先级为 5 的普通任务
-        self.retry(countdown=10)  # 10s 后重试;
-
-    try:
-        model = PuyuAPI(api_key="Bearer 0f840af5-932c-4d6a-ac61-d2d868831c1a")
-        messages = [{"role": "user", "content": data}]
-        response = model.generate(prompt="", messages=messages)
-        response.raise_for_status()
-        response_json = response.json()
-        data = model.parse(response.json())[-1]
-        if response_json.get("status") == 500:
-            # 设置全局暂停标志
-            redis_client.set("pause_tasks", "True")
-            logger.error("500 status code received, pausing tasks")
-            raise requests.RequestException('Server error 500')
-        redis_client.set("pause_tasks", "False")
-        return data
-    except BaseException as e:
-        retry_delay = min(2 ** self.request.retries, 60)    # 指数退避，最大60秒
-        logger.debug(f"retry: {e}")
-        self.retry(exc=e, countdown=retry_delay, priority=0)
-    
-    finally:
-        # 重置全局暂停标志
-        if self.request.retries == self.max_retries:
-            redis_client.set("pause_tasks", "False")
-            logger.info("Max retries reached or task succeeded, resuming tasks.")
-            return {"error": "Max retries"}
-        
-    return data
-
 @app.task(bind=True, max_retries=3, rate_limit='3/s')
 def critic_query(self, data):
     # 检查是否允许执行任务
@@ -147,7 +107,7 @@ def gpt4_critic_post_url(self, data):
     result = get_answer_sync(question = user_prompt, system_prompt = system_prompt)
     return result
     
-
+# 对外API
 @app.task(bind=True, max_retries=3, rate_limit='1/s')
 def multi_lora_post_url(self, data: str, cls_name):
     try:

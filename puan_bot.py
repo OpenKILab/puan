@@ -16,7 +16,7 @@ import requests
 import json
 from loguru import logger
 
-from post_url_task import puyu_qa_query, critic_query, multi_lora_post_url, gpt4_critic_post_url
+from post_url_task import critic_query, multi_lora_post_url, gpt4_critic_post_url
 from auto_table import auto_table
 import pandas as pd
 
@@ -155,7 +155,7 @@ def multi_lora_qa(records: List[QARecord], cls_name) -> QARecord:
     return records
     
 def multi_lora_sheet():
-    model_cls = PaishengAPI
+    model_cls = QwenAPI
     model = model_cls.__name__
 
     # 检查文件夹是否存在

@@ -14,14 +14,6 @@ class BilibiliAPI(HTTPAPILLMModel):
         }
 
     def generate(self, prompt, messages=None, *args, **kwargs):
-        # formatted_messages = [
-        #     {
-        #         "role": item["role"],
-        #         "content": item["content"],
-        #     }
-        #     for item in messages
-        # ]
-
         data = {
             "text": prompt,
             "mid": 123456
