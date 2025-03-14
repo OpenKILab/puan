@@ -20,6 +20,8 @@ from post_url_task import critic_query, multi_lora_post_url, gpt4_critic_post_ur
 from auto_table import auto_table
 import pandas as pd
 
+from model.http_puanapi_model import PuanAPI
+
 import glob
 
 # 安全种类评分
@@ -103,7 +105,7 @@ def multi_lora_qa(records: List[QARecord], cls_name) -> QARecord:
     return records
     
 def multi_lora_sheet():
-    model_cls = QwenAPI
+    model_cls = PuanAPI
     model = model_cls.__name__
 
     # 检查文件夹是否存在
@@ -115,7 +117,7 @@ def multi_lora_sheet():
         print(f"文件夹 {model} 已存在, 不需要再次创建。")
     
     # TODO 针对不同任务更改待测文件
-    folder_path = "/Users/mac/Documents/data"
+    folder_path = "/Users/mac/Documents/pjlab/评测题目/1-2月测试题"
     # 使用 glob.glob() 获取所有 .xlsx 文件,并排除隐藏文件和 Microsoft Office 临时文件
     file_paths = [f for f in glob.glob(os.path.join(folder_path, '*.xlsx')) 
                 if not os.path.basename(f).startswith('.') 

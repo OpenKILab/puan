@@ -4,7 +4,6 @@ import requests
 from loguru import logger
 from kombu import Queue
 
-from model.http_puyuapi_model import PuyuAPI
 from model.http_puanapi_model import PuanAPI
 
 from dataset.dataset import QARecord

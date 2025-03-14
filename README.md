@@ -7,6 +7,9 @@
 ## 流量控制
 修改 post_url_task.py 中multi_lora_post_url任务的rate_limit
 ## 任务启动
-1. celery -A post_url_task worker --loglevel=info --purge
-   1. 访问受限使用 celery -A post_url_task worker --loglevel=info --purge --pool=solo
-2. python puan_bot.py
+### 请求队列启动
+   1. 【linux/macos】celery -A post_url_task worker --loglevel=info --purge
+   2. 【windows】celery -A post_url_task worker --loglevel=info --purge --pool=solo
+注意: API不稳定，可以尝试设置--pool=solo
+### 任务发放
+python puan_bot.py
